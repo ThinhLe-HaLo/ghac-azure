@@ -24,3 +24,30 @@ variable "ghaction_tags" {
     deployment_type = "terraform"
   }
 }
+
+####################### VNET SETUP #######################
+
+variable "ghaction_vnet_name" {
+  #description = "The name of the virtual network."
+  type        = string
+  default     = "ghaction-vnet"
+}
+
+variable "ghaction_vnet_address_space" {
+  #description = "The address space of the virtual network."
+  type        = list(string)
+  default     = ["10.0.0.0/16"]
+}
+
+variable "ghaction_subnet_name" {
+  #description = "The name of the subnet."
+  type        = string
+  default     = "ghaction-subnet"
+}
+
+variable "ghaction_subnet_address_prefix" {
+  #description = "The address prefix of the subnet."
+  type        = list(string)
+  default     = ["10.0.0.0/24"]
+}
+
