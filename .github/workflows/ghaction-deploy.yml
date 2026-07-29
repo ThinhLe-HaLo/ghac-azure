@@ -7,11 +7,39 @@ jobs:
   azure-authen:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: azure login
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      - name: Verify
-        run: az account show
+  setup-terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+  terraform-init-cli:
+    runs-on: ubuntu-latest
+    steps:
+      - name: terraform init
+        run: terraform init
+  terraform-validate-cli:
+    runs-on: ubuntu-latest
+    steps:
+      - name: terraform validate
+        run: terraform validate
+  terraform-plan-cli:
+    needs: [terraform-validate-cli]
+    runs-on: ubuntu-latest
+    steps:
+      - name: terraform plan
+        run: terraform plan
+  terraform-apply-cli:
+    needs: [terraform-plan-cli]
+    runs-on: ubuntu-latest
+    steps:
+      - name: terraform apply
+        run: terraform apply -auto-approve
+  
