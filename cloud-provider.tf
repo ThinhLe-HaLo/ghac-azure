@@ -5,6 +5,14 @@ terraform {
       version = "=4.1.0"
     }
   }
+  backend "azurerm" {
+    resource_group_name = "Demo-Gr"
+    storage_account_name = "thinhlefilestorage"
+    container_name = "tfstate"
+    key = "ghaction-azure/foundation.tfstate"
+    use_oidc = true
+    use_azuread_auth = true
+  }
 }
 
 # Configure the Microsoft Azure Provider
