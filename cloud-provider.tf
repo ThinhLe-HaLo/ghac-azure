@@ -6,6 +6,7 @@ terraform {
     }
   }
   # Configure the backend for storing Terraform state in Azure Blob Storage
+  # add blob storage contributor
   backend "azurerm" {
     resource_group_name = "Demo-Gr"
     storage_account_name = "thinhlefilestorage"
