@@ -1,4 +1,4 @@
-name: azure-deploy
+name: azure-destroy
 on:
   workflow_dispatch:
 permissions:
