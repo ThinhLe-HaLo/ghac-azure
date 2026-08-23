@@ -51,7 +51,7 @@ variable "ghaction_subnet_address_prefix" {
   default     = ["10.0.0.0/24"]
 }
 
-####################### STORAGE ACCOUNT SETUP #######################
+####################### STORAGE ACCOUNT WORKLOAD SETUP #######################
 
 variable "storage_account_name" {
   #description = "The name of the storage account."
