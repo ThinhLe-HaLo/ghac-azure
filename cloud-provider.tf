@@ -8,12 +8,12 @@ terraform {
   # Configure the backend for storing Terraform state in Azure Blob Storage
   # add blob storage contributor
   backend "azurerm" {
-    resource_group_name = "Demo-Gr"
+    resource_group_name  = "Demo-Gr"
     storage_account_name = "thinhlefilestorage"
-    container_name = "tfstate"
-    key = "ghaction-azure/foundation.tfstate"
-    use_oidc = true
-    use_azuread_auth = true
+    container_name       = "tfstate"
+    key                  = "ghaction-azure/foundation.tfstate"
+    use_oidc             = true
+    use_azuread_auth     = true
   }
 }
 
