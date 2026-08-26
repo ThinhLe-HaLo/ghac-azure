@@ -61,6 +61,17 @@ variable "ghaction_subnet_address_prefix_02" {
   type        = list(string)
   default     = ["10.0.1.0/24"]
 }
+variable "ghaction_subnet_name_03" {
+  #description = "The name of the subnet."
+  type        = string
+  default     = "ghaction-subnet-03"
+}
+
+variable "ghaction_subnet_address_prefix_03" {
+  #description = "The address prefix of the subnet."
+  type        = list(string)
+  default     = ["10.0.2.0/24"]
+}
 ####################### STORAGE ACCOUNT WORKLOAD SETUP #######################
 
 variable "storage_account_name" {
