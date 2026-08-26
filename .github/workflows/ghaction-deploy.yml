@@ -24,7 +24,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_wrappers: false
+          terraform_wrapper: false
       - name: terraform init
         run: terraform init
       - name: terraform validate
@@ -57,7 +57,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_wrappers: false
+          terraform_wrapper: false
       - name: download artifact
         uses: actions/download-artifact@v4
         with:
