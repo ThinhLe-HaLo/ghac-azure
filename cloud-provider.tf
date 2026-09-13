@@ -7,6 +7,7 @@ terraform {
   }
   # Configure the backend for storing Terraform state in Azure Blob Storage
   # add blob storage contributor
+  /*
   backend "azurerm" {
     resource_group_name  = "Demo-Gr"
     storage_account_name = "thinhlefilestorage"
@@ -15,11 +16,12 @@ terraform {
     use_oidc             = true
     use_azuread_auth     = true
   }
+  */ 
 }
 
 # Configure the Microsoft Azure Provider
 provider "azurerm" {
   //resource_provider_registrations = "none" # This is only required when the User, Service Principal, or Identity running Terraform lacks the permissions to register Azure Resource Providers.
   features {}
-  subscription_id = "eb5ce75b-a97c-4c2a-b33d-2264184398df"
+  #subscription_id = "eb5ce75b-a97c-4c2a-b33d-2264184398df"
 }

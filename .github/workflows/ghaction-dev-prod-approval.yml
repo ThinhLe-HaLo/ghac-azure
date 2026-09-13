@@ -8,16 +8,29 @@ on:
 permissions:
   id-token: write
   contents: read
-env:  
-  ARM_USE_OIDC: true  
-  ARM_USE_AZUREAD: true  
-  ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}  
-  ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}  
-  ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+concurrency: 
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+#env:  
+#  ARM_USE_OIDC: true  
+#  ARM_USE_AZUREAD: true
+#  ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}  
+#  ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}  
+#  ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+########################################################
+# PLAN DEV
+########################################################
 jobs:
-  plan-terraform:
+  plan-dev:
     runs-on: ubuntu-latest
+    environment: dev-env
+    env:  
+      ARM_USE_OIDC: true  
+      ARM_USE_AZUREAD: true
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}  
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}  
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     outputs:
       plancode: ${{ steps.tfplan.outputs.exitcode }}
     steps:
@@ -28,9 +41,101 @@ jobs:
         with:
           terraform_wrapper: false
       - name: terraform init
-        run: terraform init
+        run: |
+        terraform init \
+          -backend-config="resource_group_name=Demo-Gr" \
+          -backend-config="storage_account_name=thinhlefilestorage" \
+          -backend-config="container_name=tfstate" \
+          -backend-config="key=${{ vars.TFSTATE_KEY }}"
       - name: terraform validate
         run: terraform validate
+      - name: terraform plan-dev
+        id: tfplan
+        run: |
+          set +e
+          terraform plan -detailed-exitcode -out=tfplan
+          code=$?
+          echo "exitcode=$code" >> $GITHUB_OUTPUT
+          terraform show -no-color tfplan > plan.txt
+          if [ $code -eq 1 ]; then exit 1; fi
+          exit 0
+      #- name: upload to artifact
+      #  uses: actions/upload-artifact@v4
+      #  with:
+      #    name: tfplan
+      #    path: |
+      #      tfplan
+      #      plan.txt
+      #    retention-days: 1
+
+########################################################
+# APPLY DEV
+########################################################
+  apply-dev:
+    needs: plan-dev
+    if: needs.plan-dev.outputs.plancode == '2'
+    runs-on: ubuntu-latest
+    environment: dev-env
+    env:  
+      ARM_USE_OIDC: true  
+      ARM_USE_AZUREAD: true
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}  
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}  
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+      #- name: download artifact
+      #  uses: actions/download-artifact@v4
+      #  with:
+      #    name: tfplan
+      - name: terraform init
+        run: |
+        terraform init \
+          -backend-config="resource_group_name=Demo-Gr" \
+          -backend-config="storage_account_name=thinhlefilestorage" \
+          -backend-config="container_name=tfstate" \
+          -backend-config="key=${{ vars.TFSTATE_KEY }}"
+      - name: terraform apply
+        run: terraform apply -auto-approve
+
+########################################################
+# PLAN PROD
+########################################################
+  plan-prod:
+    needs: apply-dev
+    runs-on: ubuntu-latest
+    environment: prod-env
+    env:  
+      ARM_USE_OIDC: true  
+      ARM_USE_AZUREAD: true
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}  
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}  
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    outputs:
+      plancode: ${{ steps.tfplan.outputs.exitcode }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+      #- name: download artifact
+      #  uses: actions/download-artifact@v4
+      #  with:
+      #    name: tfplan
+      - name: terraform init
+        run: |
+        terraform init \
+          -backend-config="resource_group_name=Demo-Gr" \
+          -backend-config="storage_account_name=thinhlefilestorage" \
+          -backend-config="container_name=tfstate" \
+          -backend-config="key=${{ vars.TFSTATE_KEY }}"
       - name: terraform plan
         id: tfplan
         run: |
@@ -41,18 +146,19 @@ jobs:
           terraform show -no-color tfplan > plan.txt
           if [ $code -eq 1 ]; then exit 1; fi
           exit 0
-      - name: upload to artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: tfplan
-          path: |
-            tfplan
-            plan.txt
-          retention-days: 1
-  apply-terraform:
-    needs: plan-terraform
+########################################################
+# APPLY PROD
+########################################################
+  apply-prod:
+    needs: plan-prod
     runs-on: ubuntu-latest
-    if: needs.plan-terraform.outputs.plancode == '2'
+    environment: prod-env
+    env:  
+      ARM_USE_OIDC: true  
+      ARM_USE_AZUREAD: true
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}  
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}  
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -60,11 +166,12 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_wrapper: false
-      - name: download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: tfplan
       - name: terraform init
-        run: terraform init
+        run: |
+        terraform init \
+          -backend-config="resource_group_name=Demo-Gr" \
+          -backend-config="storage_account_name=thinhlefilestorage" \
+          -backend-config="container_name=tfstate" \
+          -backend-config="key=${{ vars.TFSTATE_KEY }}"
       - name: terraform apply
-        run: terraform apply -auto-approve tfplan
+        run: terraform apply -auto-approve
