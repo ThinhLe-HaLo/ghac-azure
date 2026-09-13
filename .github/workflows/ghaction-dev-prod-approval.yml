@@ -95,11 +95,11 @@ jobs:
       #    name: tfplan
       - name: terraform init
         run: |
-        terraform init \
-          -backend-config="resource_group_name=Demo-Gr" \
-          -backend-config="storage_account_name=thinhlefilestorage" \
-          -backend-config="container_name=tfstate" \
-          -backend-config="key=${{ vars.TFSTATE_KEY }}"
+          terraform init \
+            -backend-config="resource_group_name=Demo-Gr" \
+            -backend-config="storage_account_name=thinhlefilestorage" \
+            -backend-config="container_name=tfstate" \
+            -backend-config="key=${{ vars.TFSTATE_KEY }}"
       - name: terraform apply
         run: terraform apply -auto-approve
 
@@ -168,10 +168,10 @@ jobs:
           terraform_wrapper: false
       - name: terraform init
         run: |
-        terraform init \
-          -backend-config="resource_group_name=Demo-Gr" \
-          -backend-config="storage_account_name=thinhlefilestorage" \
-          -backend-config="container_name=tfstate" \
-          -backend-config="key=${{ vars.TFSTATE_KEY }}"
+          terraform init \
+            -backend-config="resource_group_name=Demo-Gr" \
+            -backend-config="storage_account_name=thinhlefilestorage" \
+            -backend-config="container_name=tfstate" \
+            -backend-config="key=${{ vars.TFSTATE_KEY }}"
       - name: terraform apply
         run: terraform apply -auto-approve
