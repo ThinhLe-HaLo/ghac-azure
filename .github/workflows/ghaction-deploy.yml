@@ -1,3 +1,4 @@
+# add thêm note
 name: azure-deploy
 on:
   push:
