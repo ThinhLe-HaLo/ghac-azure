@@ -29,6 +29,10 @@ jobs:
             -backend-config="storage_account_name=thinhlefilestorage" \
             -backend-config="container_name=tfstate" \
             -backend-config="key=${{ vars.TFSTATE_KEY }}"
+      - name: Show Terraform
+        run: |
+          terraform version
+          cat .terraform/terraform.tfstate
       - name: Show TFSTATE Key
         run: |
           echo "TFSTATE_KEY=${{ vars.TFSTATE_KEY }}"
