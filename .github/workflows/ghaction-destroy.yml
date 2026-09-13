@@ -4,27 +4,60 @@ on:
 permissions:
   id-token: write
   contents: read
-env:  
-  ARM_USE_OIDC: true  
-  ARM_USE_AZUREAD: true  
-  ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}  
-  ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}  
-  ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
 jobs:
-  setup-terraform:
+  destroy-dev:
     runs-on: ubuntu-latest
+    environment: dev-env
+    env:  
+      ARM_USE_OIDC: true  
+      ARM_USE_AZUREAD: true
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}  
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}  
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
       - name: terraform init
-        run: terraform init
+        run: |
+          terraform init \
+            -backend-config="resource_group_name=Demo-Gr" \
+            -backend-config="storage_account_name=thinhlefilestorage" \
+            -backend-config="container_name=tfstate" \
+            -backend-config="key=${{ vars.TFSTATE_KEY }}"
       - name: terraform validate
         run: terraform validate
-      - name: terraform plan destroy
-        run: terraform plan -destroy
+      - name: terraform destroy
+        run: terraform destroy -auto-approve
+  destroy-prod:
+    runs-on: ubuntu-latest
+    environment: prod-env
+    env:  
+      ARM_USE_OIDC: true  
+      ARM_USE_AZUREAD: true
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}  
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}  
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+      - name: terraform init
+        run: |
+          terraform init \
+            -backend-config="resource_group_name=Demo-Gr" \
+            -backend-config="storage_account_name=thinhlefilestorage" \
+            -backend-config="container_name=tfstate" \
+            -backend-config="key=${{ vars.TFSTATE_KEY }}"
+      - name: terraform validate
+        run: terraform validate
       - name: terraform destroy
         run: terraform destroy -auto-approve
   
