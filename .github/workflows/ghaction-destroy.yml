@@ -29,6 +29,8 @@ jobs:
             -backend-config="storage_account_name=thinhlefilestorage" \
             -backend-config="container_name=tfstate" \
             -backend-config="key=${{ vars.TFSTATE_KEY }}"
+      - name: Show State
+        run: terraform state list
       - name: terraform validate
         run: terraform validate
       - name: terraform destroy
@@ -56,6 +58,8 @@ jobs:
             -backend-config="storage_account_name=thinhlefilestorage" \
             -backend-config="container_name=tfstate" \
             -backend-config="key=${{ vars.TFSTATE_KEY }}"
+      - name: Show State
+        run: terraform state list
       - name: terraform validate
         run: terraform validate
       - name: terraform destroy
