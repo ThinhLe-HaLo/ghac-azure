@@ -1,4 +1,5 @@
 # add thêm note
+# add thêm credentials for Azure authentication
 name: azure-deploy
 on:
   push:
